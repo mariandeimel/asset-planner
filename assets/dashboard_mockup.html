@@ -1,0 +1,223 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .app { display: flex; height: 720px; background: #0f0f10; font-family: var(--font-sans); overflow: hidden; border-radius: var(--border-radius-lg); border: 0.5px solid #2a2a2e; }
+  .sidebar { width: 220px; min-width: 220px; background: #141416; border-right: 0.5px solid #2a2a2e; display: flex; flex-direction: column; padding: 0; }
+  .logo { padding: 20px 20px 16px; border-bottom: 0.5px solid #2a2a2e; display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 28px; height: 28px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .logo-text { font-size: 14px; font-weight: 500; color: #e8e8ea; letter-spacing: -0.01em; }
+  .nav { padding: 12px 10px; flex: 1; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 7px; font-size: 13px; color: #8b8b9a; cursor: pointer; margin-bottom: 2px; transition: all 0.15s; }
+  .nav-item.active { background: #1e1e24; color: #e8e8ea; }
+  .nav-item i { font-size: 16px; }
+  .sidebar-footer { padding: 14px; border-top: 0.5px solid #2a2a2e; }
+  .data-freshness { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #5a5a6a; }
+  .dot-live { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+  .main { flex: 1; overflow-y: auto; background: #0f0f10; }
+  .topbar { height: 52px; border-bottom: 0.5px solid #2a2a2e; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: #0f0f10; position: sticky; top: 0; z-index: 10; }
+  .page-title { font-size: 14px; font-weight: 500; color: #e8e8ea; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .btn-new { background: #3b82f6; color: #fff; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: #2a2a2e; border: 0.5px solid #3a3a42; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #8b8b9a; }
+  .content { padding: 24px; }
+  .section-label { font-size: 11px; font-weight: 500; color: #5a5a6a; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 14px; }
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .metric-card { background: #141416; border: 0.5px solid #2a2a2e; border-radius: 10px; padding: 16px; }
+  .metric-label { font-size: 11px; color: #5a5a6a; margin-bottom: 8px; letter-spacing: 0.03em; }
+  .metric-value { font-size: 22px; font-weight: 500; color: #e8e8ea; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .metric-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px; }
+  .badge-green { background: #0a2a14; color: #22c55e; }
+  .badge-red { background: #2a0a0a; color: #ef4444; }
+  .badge-blue { background: #0a1a2e; color: #60a5fa; }
+  .two-col { display: grid; grid-template-columns: 1fr 280px; gap: 16px; margin-bottom: 28px; }
+  .chart-card { background: #141416; border: 0.5px solid #2a2a2e; border-radius: 10px; padding: 18px; }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .chart-title { font-size: 13px; font-weight: 500; color: #c8c8d2; }
+  .tab-group { display: flex; gap: 2px; background: #0f0f10; border-radius: 6px; padding: 2px; }
+  .tab { font-size: 11px; color: #5a5a6a; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
+  .tab.active { background: #1e1e24; color: #c8c8d2; }
+  .chart-area { height: 140px; position: relative; overflow: hidden; }
+  .portfolios-list { display: flex; flex-direction: column; gap: 8px; }
+  .portfolio-row { background: #1a1a1f; border: 0.5px solid #2a2a2e; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .portfolio-row:hover { border-color: #3a3a42; }
+  .p-name { font-size: 13px; font-weight: 500; color: #c8c8d2; margin-bottom: 3px; }
+  .p-sub { font-size: 11px; color: #5a5a6a; display: flex; align-items: center; gap: 6px; }
+  .tag { background: #1e1e28; color: #6b6b82; font-size: 10px; padding: 2px 7px; border-radius: 4px; border: 0.5px solid #2a2a36; }
+  .p-value { text-align: right; }
+  .p-val { font-size: 14px; font-weight: 500; color: #e8e8ea; }
+  .p-ret { font-size: 11px; color: #22c55e; }
+  .p-ret.neg { color: #ef4444; }
+  .opportunities { background: #141416; border: 0.5px solid #2a2a2e; border-radius: 10px; padding: 18px; }
+  .opp-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #1e1e24; }
+  .opp-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .opp-left { display: flex; align-items: center; gap: 10px; }
+  .ticker-badge { width: 34px; height: 34px; border-radius: 7px; background: #1a1a24; border: 0.5px solid #2a2a36; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: #8b8bb5; }
+  .opp-name { font-size: 13px; font-weight: 500; color: #c8c8d2; }
+  .opp-sector { font-size: 11px; color: #5a5a6a; }
+  .score-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .score-high { background: #0a2a14; color: #22c55e; }
+  .score-mid { background: #1a1a0a; color: #eab308; }
+  .discount { font-size: 13px; font-weight: 500; color: #22c55e; text-align: right; }
+  .disclaimer { font-size: 10px; color: #3a3a4a; margin-top: 20px; padding: 10px; background: #141416; border-radius: 6px; border: 0.5px solid #1e1e24; line-height: 1.5; }
+</style>
+<h2 class="sr-only">Portfolio Planner — Dashboard showing total portfolio value, performance metrics, and top fair value opportunities</h2>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><i class="ti ti-chart-arcs" style="color:#fff;font-size:15px;" aria-hidden="true"></i></div>
+      <span class="logo-text">Portfol.io</span>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
+      <div class="nav-item"><i class="ti ti-briefcase" aria-hidden="true"></i> Portfolios</div>
+      <div class="nav-item"><i class="ti ti-search" aria-hidden="true"></i> Screener</div>
+      <div class="nav-item"><i class="ti ti-star" aria-hidden="true"></i> Watchlist</div>
+      <div class="nav-item" style="margin-top:16px;"><i class="ti ti-settings" aria-hidden="true"></i> Einstellungen</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="data-freshness"><div class="dot-live"></div> Kurse aktuell — heute 02:14</div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title">Dashboard</span>
+      <div class="topbar-right">
+        <button class="btn-new"><i class="ti ti-plus" style="font-size:13px;" aria-hidden="true"></i> Neues Portfolio</button>
+        <div class="avatar">MK</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="section-label">Gesamtübersicht</div>
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Gesamtwert</div>
+          <div class="metric-value">€128.500</div>
+          <span class="metric-badge badge-green"><i class="ti ti-trending-up" style="font-size:11px;" aria-hidden="true"></i> +8,3 % YTD</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Gesamtrendite</div>
+          <div class="metric-value">+€9.840</div>
+          <span class="metric-badge badge-green">+8,3 %</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Jahresdividende</div>
+          <div class="metric-value">€3.210</div>
+          <span class="metric-badge badge-blue">€267 / Monat</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ø Div.-Rendite</div>
+          <div class="metric-value">2,5 %</div>
+          <span class="metric-badge badge-blue">gewichtet</span>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">Portfolio-Entwicklung</span>
+            <div class="tab-group">
+              <span class="tab">1W</span><span class="tab">1M</span><span class="tab active">3M</span><span class="tab">1J</span><span class="tab">YTD</span>
+            </div>
+          </div>
+          <div class="chart-area">
+            <svg width="100%" height="140" viewBox="0 0 520 140" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gfill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,120 C40,115 60,100 90,95 C120,90 150,105 180,88 C210,72 240,75 270,60 C300,45 330,50 360,38 C390,26 420,30 450,22 C475,16 500,15 520,12" stroke="#3b82f6" stroke-width="1.5" fill="none"/>
+              <path d="M0,120 C40,115 60,100 90,95 C120,90 150,105 180,88 C210,72 240,75 270,60 C300,45 330,50 360,38 C390,26 420,30 450,22 C475,16 500,15 520,12 L520,140 L0,140 Z" fill="url(#gfill)"/>
+              <line x1="0" y1="120" x2="520" y2="120" stroke="#2a2a2e" stroke-width="0.5"/>
+              <text x="4" y="135" font-size="10" fill="#3a3a4a">Mär</text>
+              <text x="168" y="135" font-size="10" fill="#3a3a4a">Apr</text>
+              <text x="338" y="135" font-size="10" fill="#3a3a4a">Mai</text>
+              <text x="490" y="135" font-size="10" fill="#3a3a4a">Jun</text>
+            </svg>
+          </div>
+        </div>
+        <div class="opportunities">
+          <div class="chart-header">
+            <span class="chart-title">Top Fair-Value-Chancen</span>
+            <span style="font-size:11px;color:#5a5a6a;cursor:pointer;">alle sehen</span>
+          </div>
+          <div class="opp-item">
+            <div class="opp-left">
+              <div class="ticker-badge">MSFT</div>
+              <div>
+                <div class="opp-name">Microsoft</div>
+                <div class="opp-sector">Technologie · US</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="score-pill score-high">Score 84</div>
+              <div class="discount">−22 %</div>
+            </div>
+          </div>
+          <div class="opp-item">
+            <div class="opp-left">
+              <div class="ticker-badge">V</div>
+              <div>
+                <div class="opp-name">Visa</div>
+                <div class="opp-sector">Finanzen · US</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="score-pill score-high">Score 78</div>
+              <div class="discount">−18 %</div>
+            </div>
+          </div>
+          <div class="opp-item">
+            <div class="opp-left">
+              <div class="ticker-badge">ASML</div>
+              <div>
+                <div class="opp-name">ASML</div>
+                <div class="opp-sector">Halbleiter · EU</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="score-pill score-mid">Score 65</div>
+              <div class="discount">−11 %</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Meine Portfolios</div>
+      <div class="portfolios-list">
+        <div class="portfolio-row">
+          <div>
+            <div class="p-name">Dividenden-Depot</div>
+            <div class="p-sub"><span class="tag">Dividende</span><span class="tag">Value</span> · 8 Positionen</div>
+          </div>
+          <div class="p-value">
+            <div class="p-val">€68.200</div>
+            <div class="p-ret">+12,4 %</div>
+          </div>
+        </div>
+        <div class="portfolio-row">
+          <div>
+            <div class="p-name">ETF-Kern</div>
+            <div class="p-sub"><span class="tag">ETF</span><span class="tag">Wachstum</span> · 4 Positionen</div>
+          </div>
+          <div class="p-value">
+            <div class="p-val">€42.300</div>
+            <div class="p-ret">+5,1 %</div>
+          </div>
+        </div>
+        <div class="portfolio-row">
+          <div>
+            <div class="p-name">Krypto</div>
+            <div class="p-sub"><span class="tag">Crypto</span><span class="tag">Spekulativ</span> · 3 Positionen</div>
+          </div>
+          <div class="p-value">
+            <div class="p-val">€18.000</div>
+            <div class="p-ret neg">−3,2 %</div>
+          </div>
+        </div>
+      </div>
+      <div class="disclaimer">⚠ Alle Angaben ohne Gewähr. Keine Anlageberatung. Berechnungen basieren auf Schätzwerten und stellen keine Empfehlung dar. Kursstand: ca.-Werte vom heutigen Tag.</div>
+    </div>
+  </div>
+</div>

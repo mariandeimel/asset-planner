@@ -1,0 +1,148 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .overlay { min-height: 560px; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; border-radius: var(--border-radius-lg); padding: 24px; }
+  .modal { background: #141416; border: 0.5px solid #2a2a2e; border-radius: 12px; width: 480px; overflow: hidden; font-family: var(--font-sans); }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 0.5px solid #2a2a2e; }
+  .modal-title { font-size: 15px; font-weight: 500; color: #e8e8ea; }
+  .modal-close { background: transparent; border: none; color: #5a5a6a; cursor: pointer; font-size: 18px; display: flex; align-items: center; padding: 2px; border-radius: 4px; }
+  .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .search-wrap { position: relative; }
+  .search-input { width: 100%; background: #0f0f10; border: 0.5px solid #3a3a42; border-radius: 8px; padding: 10px 14px 10px 38px; font-size: 13px; color: #e8e8ea; outline: none; }
+  .search-input::placeholder { color: #4a4a5a; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #5a5a6a; font-size: 15px; pointer-events: none; }
+  .search-results { background: #0f0f10; border: 0.5px solid #2a2a2e; border-radius: 8px; margin-top: 4px; overflow: hidden; }
+  .search-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 0.5px solid #1a1a1e; cursor: pointer; }
+  .search-item:last-child { border-bottom: none; }
+  .search-item.selected { background: #1a1a28; }
+  .search-item:hover { background: #1a1a22; }
+  .si-left { display: flex; align-items: center; gap: 10px; }
+  .si-ticker { font-size: 11px; font-weight: 500; color: #8b8bb5; background: #1a1a28; border: 0.5px solid #2a2a36; border-radius: 5px; padding: 3px 8px; min-width: 44px; text-align: center; }
+  .si-name { font-size: 13px; color: #c8c8d2; }
+  .si-type { font-size: 11px; color: #5a5a6a; }
+  .si-exchange { font-size: 11px; color: #5a5a6a; }
+  .check { color: #3b82f6; font-size: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: span 2; }
+  .form-label { font-size: 11px; color: #8b8b9a; font-weight: 500; letter-spacing: 0.03em; }
+  .form-input { background: #0f0f10; border: 0.5px solid #2a2a2e; border-radius: 7px; padding: 9px 12px; font-size: 13px; color: #e8e8ea; outline: none; width: 100%; }
+  .form-input:focus { border-color: #3b82f6; }
+  .form-select { background: #0f0f10; border: 0.5px solid #2a2a2e; border-radius: 7px; padding: 9px 12px; font-size: 13px; color: #e8e8ea; outline: none; width: 100%; appearance: none; }
+  .type-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .type-btn { background: #0f0f10; border: 0.5px solid #2a2a2e; border-radius: 7px; padding: 8px; text-align: center; cursor: pointer; }
+  .type-btn.active { background: #1a1a28; border-color: #3b82f6; }
+  .type-btn .type-icon { font-size: 18px; color: #5a5a6a; margin-bottom: 4px; }
+  .type-btn.active .type-icon { color: #3b82f6; }
+  .type-btn .type-label { font-size: 11px; color: #5a5a6a; }
+  .type-btn.active .type-label { color: #c8c8d2; }
+  .preview-card { background: #0f0f10; border: 0.5px solid #2a2a2e; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .preview-label { font-size: 11px; color: #5a5a6a; margin-bottom: 2px; }
+  .preview-value { font-size: 15px; font-weight: 500; color: #e8e8ea; }
+  .preview-sub { font-size: 11px; color: #5a5a6a; margin-top: 1px; }
+  .preview-sub.green { color: #22c55e; }
+  .modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 0.5px solid #2a2a2e; background: #111113; }
+  .btn-cancel { background: transparent; border: 0.5px solid #2a2a2e; color: #8b8b9a; font-size: 13px; padding: 8px 18px; border-radius: 7px; cursor: pointer; }
+  .btn-save { background: #3b82f6; border: none; color: #fff; font-size: 13px; font-weight: 500; padding: 8px 22px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+</style>
+<h2 class="sr-only">Modal zum Hinzufügen einer neuen Holding-Position ins Portfolio</h2>
+<div class="overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Holding hinzufügen</span>
+      <button class="modal-close"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="form-label" style="margin-bottom:6px;">Asset-Typ</div>
+        <div class="type-row">
+          <div class="type-btn active">
+            <div class="type-icon"><i class="ti ti-trending-up" aria-hidden="true"></i></div>
+            <div class="type-label">Aktie</div>
+          </div>
+          <div class="type-btn">
+            <div class="type-icon"><i class="ti ti-chart-pie" aria-hidden="true"></i></div>
+            <div class="type-label">ETF</div>
+          </div>
+          <div class="type-btn">
+            <div class="type-icon"><i class="ti ti-currency-bitcoin" aria-hidden="true"></i></div>
+            <div class="type-label">Krypto</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Symbol oder Unternehmensname suchen</div>
+        <div class="search-wrap">
+          <i class="ti ti-search search-icon" aria-hidden="true"></i>
+          <input class="search-input" type="text" value="Apple" placeholder="z. B. Apple, MSFT, BTC ...">
+        </div>
+        <div class="search-results">
+          <div class="search-item selected">
+            <div class="si-left">
+              <span class="si-ticker">AAPL</span>
+              <div>
+                <div class="si-name">Apple Inc.</div>
+                <div class="si-type">Aktie · NASDAQ · USD</div>
+              </div>
+            </div>
+            <i class="ti ti-check check" aria-hidden="true"></i>
+          </div>
+          <div class="search-item">
+            <div class="si-left">
+              <span class="si-ticker">AAPL.DE</span>
+              <div>
+                <div class="si-name">Apple Inc.</div>
+                <div class="si-type">Aktie · XETRA · EUR</div>
+              </div>
+            </div>
+            <span class="si-exchange">Xetra</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Stückzahl</label>
+          <input class="form-input" type="number" value="42" min="0.0001" step="0.0001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kaufpreis pro Stück</label>
+          <input class="form-input" type="number" value="148.20" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Währung</label>
+          <select class="form-select">
+            <option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kaufdatum</label>
+          <input class="form-input" type="date" value="2023-06-15">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Börsenplatz (optional)</label>
+          <input class="form-input" type="text" placeholder="z. B. NASDAQ, XETRA">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ISIN (optional)</label>
+          <input class="form-input" type="text" placeholder="US0378331005">
+        </div>
+      </div>
+      <div class="preview-card">
+        <div>
+          <div class="preview-label">Positionswert (aktuell)</div>
+          <div class="preview-value">€8.250,90</div>
+          <div class="preview-sub green">+32,5 % seit Kauf</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="preview-label">Anteil am Portfolio</div>
+          <div class="preview-value">12,1 %</div>
+          <div class="preview-sub">nach Hinzufügen</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel">Abbrechen</button>
+      <button class="btn-save"><i class="ti ti-check" style="font-size:13px;" aria-hidden="true"></i> Position speichern</button>
+    </div>
+  </div>
+</div>
