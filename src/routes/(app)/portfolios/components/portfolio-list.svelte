@@ -1,20 +1,17 @@
 <script lang="ts">
+	import PortfolioListData from './portfolio-list-data.svelte';
 	import PortfolioListLoading from './portfolio-list-loading.svelte';
 	import { createPortfolioList } from './portfolio-list.svelte.ts';
 
-	const { state } = createPortfolioList();
+	const list = createPortfolioList();
 </script>
 
-{#if state.status === 'loading'}
+{#if list.state.status === 'loading'}
 	<PortfolioListLoading />
-{:else if state.status === 'error'}
-	<div>Error loading portfolios: {state.error.message}</div>
-{:else if state.status === 'empty'}
+{:else if list.state.status === 'error'}
+	<div>Error loading portfolios: {list.state.error.message}</div>
+{:else if list.state.status === 'empty'}
 	<div>No portfolios found.</div>
-{:else if state.status === 'data'}
-	<ul>
-		{#each state.portfolios as portfolio}
-			<li>{portfolio.name}</li>
-		{/each}
-	</ul>
+{:else if list.state.status === 'data'}
+	<PortfolioListData portfolios={list.state.portfolios} />
 {/if}
